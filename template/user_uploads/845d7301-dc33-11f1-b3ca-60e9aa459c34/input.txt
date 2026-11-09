@@ -1,0 +1,8 @@
+file 'C:/Users/Dell/Downloads/vidSnapAI/template/user_uploads/845d7301-dc33-11f1-b3ca-60e9aa459c34/Screenshot_2026-09-16_130040.png'
+duration 1
+file 'C:/Users/Dell/Downloads/vidSnapAI/template/user_uploads/845d7301-dc33-11f1-b3ca-60e9aa459c34/Screenshot_2026-09-15_102818.png'
+duration 1
+file 'C:/Users/Dell/Downloads/vidSnapAI/template/user_uploads/845d7301-dc33-11f1-b3ca-60e9aa459c34/Screenshot_2026-10-18_152434.png'
+duration 1
+file 'C:/Users/Dell/Downloads/vidSnapAI/template/user_uploads/845d7301-dc33-11f1-b3ca-60e9aa459c34/Screenshot_2026-10-11_224948.png'
+duration 1
