@@ -336,10 +336,7 @@ The application uses an ElevenLabs API key configured through `config.py`.
 - Introduce background music and sound effects.
 - Add customizable AI voices and narration styles.
 - Add image transitions, animations, and visual effects.
-- Allow users to download generated reels.
-- Add user authentication and personalized reel history.
-- Improve error handling and processing queue management.
-- Deploy the application to a cloud platform.
+
 
 ---
 
