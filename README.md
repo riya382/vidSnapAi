@@ -1,7 +1,7 @@
-# 🎬 VidSnapAI
-### AI-Powered Reel Generator
+                                                                     # 🎬 VidSnapAI
+                                                               ### AI-Powered Reel Generator
 
-**Python · Flask · ElevenLabs · FFmpeg · HTML · CSS · JavaScript**
+                                             **Python · Flask · ElevenLabs · FFmpeg · HTML · CSS · JavaScript**
 
 VidSnapAI is an AI-powered reel generation platform that transforms multiple images and text into vertical video reels with AI-generated voice narration.
 
