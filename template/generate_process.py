@@ -1,4 +1,3 @@
-
 # This file processes uploaded folders and generates reels
 
 import os
@@ -25,14 +24,15 @@ def create_reel(folder):
     command = [
         "ffmpeg",
         "-y",
-        "-stream_loop", "-1",
+        "-nostdin",
         "-f", "concat",
         "-safe", "0",
         "-i", input_file,
         "-i", audio_file,
         "-vf",
         "scale=1080:1920:force_original_aspect_ratio=decrease,"
-        "pad=1080:1920:(ow-iw)/2:(oh-ih)/2:black",
+        "pad=1080:1920:(ow-iw)/2:(oh-ih)/2:black,"
+        "tpad=stop_mode=clone:stop_duration=120",
         "-c:v", "libx264",
         "-c:a", "aac",
         "-shortest",
@@ -41,7 +41,7 @@ def create_reel(folder):
         output_file
     ]
 
-    subprocess.run(command, check=True)
+    subprocess.run(command, check=True, timeout=300)
 
     print("CR -", folder)
 

@@ -1,4 +1,0 @@
-file 'C:/Users/Dell/Downloads/vidSnapAI/template/user_uploads/bff22ceb-dc2e-11f1-8856-60e9aa459c34/Screenshot_2026-09-11_124408.png'
-duration 1
-file 'C:/Users/Dell/Downloads/vidSnapAI/template/user_uploads/bff22ceb-dc2e-11f1-8856-60e9aa459c34/Screenshot_2026-09-07_221115.png'
-duration 1

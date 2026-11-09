@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 import uuid
+import shutil
 from werkzeug.utils import secure_filename
 import os
 
@@ -9,7 +10,8 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True) 
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
 
 @app.route("/")
 def home():
@@ -49,7 +51,7 @@ def create():
 
         # Save description only once
         with open(os.path.join(record_folder, "desc.txt"), "w", encoding="utf-8") as f:
-         f.write(desc)
+            f.write(desc)
 
         # Create input.txt for FFmpeg
         with open(os.path.join(record_folder, "input.txt"), "w") as f:
@@ -59,6 +61,7 @@ def create():
                 ).replace("\\", "/")
 
                 f.write(f"file '{image_path}'\nduration 1\n")
+
         return redirect(url_for("gallery"))
 
     return render_template("create.html", myid=myid)
@@ -72,4 +75,21 @@ def gallery():
         reels = [f for f in os.listdir(reels_dir) if f.endswith(".mp4")]
     return render_template("gallery.html", reels=reels)
 
-app.run(debug=True)
+
+@app.route("/delete/<reel_id>", methods=["POST"])
+def delete_reel(reel_id):
+    reel_id = os.path.basename(reel_id)  # safety: no path tricks
+
+    reel_path = os.path.join(app.static_folder, "reels", f"{reel_id}.mp4")
+    upload_folder = os.path.join(app.config['UPLOAD_FOLDER'], reel_id)
+
+    if os.path.exists(reel_path):
+        os.remove(reel_path)
+    if os.path.isdir(upload_folder):
+        shutil.rmtree(upload_folder)
+
+    return redirect(url_for("gallery"))
+
+
+if __name__ == "__main__":
+    app.run(debug=True)

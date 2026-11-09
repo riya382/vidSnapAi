@@ -1,2 +1,7 @@
 .env
 config.py
+template/config.py
+template/user_uploads/
+template/static/reels/*.mp4
+template/done.txt
+__pycache__/
