@@ -1,15 +1,23 @@
 import os
-import uuid
 from elevenlabs import VoiceSettings
 from elevenlabs.client import ElevenLabs
 
-# Render pe key environment variable se aati hai.
-# Local pe agar env variable nahi hai, to config.py se le lega.
-ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
 
+def clean_key(value):
+    """Remove spaces, quotes and new lines that break the HTTP header."""
+    if not value:
+        return None
+    return value.strip().strip('"').strip("'").strip()
+
+
+# Render pe key environment variable se aati hai.
+ELEVENLABS_API_KEY = clean_key(os.getenv("ELEVENLABS_API_KEY"))
+
+# Local pe env variable na ho to config.py se le lega.
 if not ELEVENLABS_API_KEY:
     try:
-        from config import ELEVENLABS_API_KEY
+        from config import ELEVENLABS_API_KEY as _cfg_key
+        ELEVENLABS_API_KEY = clean_key(_cfg_key)
     except ImportError:
         ELEVENLABS_API_KEY = None
 
@@ -25,12 +33,11 @@ client = ElevenLabs(
 
 
 def text_to_speech_file(text: str, folder: str) -> str:
-    # Calling the text_to_speech conversion API with detailed parameters
     response = client.text_to_speech.convert(
         voice_id="pNInz6obpgDQGcFmaJgB",  # Adam pre-made voice
         output_format="mp3_22050_32",
         text=text,
-        model_id="eleven_turbo_v2_5",  # use the turbo model for low latency
+        model_id="eleven_turbo_v2_5",
         voice_settings=VoiceSettings(
             stability=0.0,
             similarity_boost=1.0,
@@ -42,7 +49,6 @@ def text_to_speech_file(text: str, folder: str) -> str:
 
     save_file_path = os.path.join(f"user_uploads/{folder}", "audio.mp3")
 
-    # Writing the audio to a file
     with open(save_file_path, "wb") as f:
         for chunk in response:
             if chunk:
