@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 import uuid
 import shutil
+import threading
 from werkzeug.utils import secure_filename
 import os
 
@@ -11,6 +12,18 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+os.makedirs(os.path.join(app.static_folder, "reels"), exist_ok=True)
+
+
+# Start the reel-making worker inside the web app (needed on Render,
+# where only one process runs). Wrapped in try/except so that the
+# website still works even if the worker fails to import.
+try:
+    import generate_process
+    threading.Thread(target=generate_process.worker_loop, daemon=True).start()
+    print("Reel worker started", flush=True)
+except Exception as e:
+    print("Reel worker NOT started:", e, flush=True)
 
 
 @app.route("/")
@@ -49,11 +62,8 @@ def create():
                 input_files.append(filename)
                 print(filename)
 
-        # Save description only once
-        with open(os.path.join(record_folder, "desc.txt"), "w", encoding="utf-8") as f:
-            f.write(desc)
-
-        # Create input.txt for FFmpeg
+        # Save input.txt FIRST and desc.txt LAST, because the worker starts
+        # processing as soon as both files exist.
         with open(os.path.join(record_folder, "input.txt"), "w") as f:
             for filename in input_files:
                 image_path = os.path.abspath(
@@ -61,6 +71,9 @@ def create():
                 ).replace("\\", "/")
 
                 f.write(f"file '{image_path}'\nduration 1\n")
+
+        with open(os.path.join(record_folder, "desc.txt"), "w", encoding="utf-8") as f:
+            f.write(desc)
 
         return redirect(url_for("gallery"))
 
@@ -92,4 +105,5 @@ def delete_reel(reel_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # debug=False so the worker thread doesn't start twice
+    app.run(debug=False)

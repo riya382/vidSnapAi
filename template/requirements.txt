@@ -1,0 +1,5 @@
+flask
+gunicorn
+imageio-ffmpeg
+werkzeug
+elevenlabs

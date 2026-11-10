@@ -4,11 +4,14 @@ import os
 import time
 import subprocess
 
+import imageio_ffmpeg
 from text_to_audio import text_to_speech_file
+
+FFMPEG = imageio_ffmpeg.get_ffmpeg_exe()
 
 
 def text_to_audio(folder):
-    print("TTA -", folder)
+    print("TTA -", folder, flush=True)
 
     with open(f"user_uploads/{folder}/desc.txt", "r", encoding="utf-8") as f:
         text = f.read()
@@ -22,7 +25,7 @@ def create_reel(folder):
     output_file = f"static/reels/{folder}.mp4"
 
     command = [
-        "ffmpeg",
+        FFMPEG,
         "-y",
         "-nostdin",
         "-f", "concat",
@@ -43,55 +46,48 @@ def create_reel(folder):
 
     subprocess.run(command, check=True, timeout=300)
 
-    print("CR -", folder)
+    print("CR -", folder, flush=True)
 
 
-if __name__ == "__main__":
-
-    # Create required folders and file
+def worker_loop():
     os.makedirs("static/reels", exist_ok=True)
     os.makedirs("user_uploads", exist_ok=True)
 
     if not os.path.exists("done.txt"):
-        with open("done.txt", "w") as f:
-            pass
+        open("done.txt", "w").close()
 
     while True:
-        print("Processing queue...")
-
         with open("done.txt", "r") as f:
-            done_folders = [folder.strip() for folder in f.readlines()]
+            done_folders = [x.strip() for x in f.readlines()]
 
-        folders = [
-            folder for folder in os.listdir("user_uploads")
-            if os.path.isdir(os.path.join("user_uploads", folder))
-        ]
+        for folder in os.listdir("user_uploads"):
+            if folder in done_folders:
+                continue
 
-        for folder in folders:
+            rec = os.path.join("user_uploads", folder)
 
-            if folder not in done_folders:
+            if not os.path.isdir(rec):
+                continue
+            if not os.path.exists(os.path.join(rec, "desc.txt")):
+                continue
+            if not os.path.exists(os.path.join(rec, "input.txt")):
+                continue
 
-                try:
-                    # Check required files
-                    record_folder = os.path.join("user_uploads", folder)
+            try:
+                text_to_audio(folder)
+                create_reel(folder)
 
-                    if not os.path.exists(os.path.join(record_folder, "desc.txt")):
-                        continue
+                with open("done.txt", "a") as f:
+                    f.write(folder + "\n")
 
-                    if not os.path.exists(os.path.join(record_folder, "input.txt")):
-                        continue
-
-                    # Generate audio
-                    text_to_audio(folder)
-
-                    # Generate video
-                    create_reel(folder)
-
-                    # Mark folder as completed
-                    with open("done.txt", "a") as f:
-                        f.write(folder + "\n")
-
-                except Exception as e:
-                    print("Error processing", folder, ":", e)
+            except Exception as e:
+                print("Error processing", folder, ":", e, flush=True)
+                # Mark as done so one bad upload doesn't retry forever
+                with open("done.txt", "a") as f:
+                    f.write(folder + "\n")
 
         time.sleep(4)
+
+
+if __name__ == "__main__":
+    worker_loop()
